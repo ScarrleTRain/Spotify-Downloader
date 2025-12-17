@@ -6,6 +6,7 @@ import csv
 import requests
 import spotipy
 import spotdl
+import emoji
 import subprocess
 
 TOKEN_ENDPOINT = "https://scarrletrain.netlify.app/.netlify/functions/spotifyToken"
@@ -158,16 +159,27 @@ def playlist_loop():
         case _:
             raise ValueError("Incorrect Option WTH")
         
-# Using Downloads
+def get_playlist_id_from_url(url): 
+    return re.search(r'playlist/([a-zA-Z0-9]+)', url).group(1)
 
-def download_remtemp(link, code):
-    match code:
-        case 0:
-            os.system(f'python -m spotdl sync "{get_sync_file(link)}"')
-        case 1:
-            os.system(f'python -m spotdl sync {link} --save-file "{get_sync_file(link)}"')
-        case 2:
-            os.system(f'python -m spotdl download {link}')
+def get_playlist_name_from_url(url):
+    sp = get_sp()
+
+    playlist = sp.playlist(get_playlist_id_from_url(url), fields="name")
+    playlist_name = playlist["name"]
+
+    clean_name = re.sub(r'[<>:"/\\|?*]+|[^\x00-\x7F]+', '', playlist_name).strip()
+    if clean_name:
+        return clean_name
+
+    emoji_desc = emoji.demojize(playlist_name, language='en')
+    emoji_words = re.findall(r':(.*?):', emoji_desc)
+    if emoji_words:
+        return '_'.join(emoji_words)
+
+    return playlist["name"]
+        
+# Using Downloads
 
 def download(link, code):
     dir = ""
@@ -176,9 +188,9 @@ def download(link, code):
     else:
         dir = os.getcwd()
 
-    dir += "\\Folders"
+    dir += "\\Folders\\"
 
-    dir += "\\biitcrush\\"
+    dir += get_playlist_name_from_url(link) + "\\"
 
     if code == 0:
         cmd = f'python -m spotdl sync "{get_sync_file(link)}"'
@@ -206,15 +218,9 @@ def download(link, code):
 
     process.wait()
 
-
 def get_sync_file(link):
-    sync_file = link.removeprefix("https://open.spotify.com/").split("?")[0].replace("/", "_") + ".dat.spotdl"
+    sync_file = "playlist_" + get_playlist_id_from_url(link) + ".dat.spotdl"
     return sync_file
-
-def move_folder():
-    return
-    
-
 
 # Using Interactions
 
@@ -260,6 +266,10 @@ def main():
 
     sys.exit(0)
 
-main()
+# THE BIG STUFF
 
+link, code = playlist_loop()
 
+print(get_playlist_name_from_url(link))
+
+# main()
