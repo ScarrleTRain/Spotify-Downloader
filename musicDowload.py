@@ -8,6 +8,8 @@ import spotipy
 import spotdl
 import emoji
 import subprocess
+import colorama
+from colorama import Fore, Back, Style
 
 TOKEN_ENDPOINT = "https://scarrletrain.netlify.app/.netlify/functions/spotifyToken"
 token = None
@@ -126,7 +128,16 @@ def list_playlists(playlists = None):
         playlists = load_playlists()
 
     for count, playlist in enumerate(playlists, start=1):
-        print(f'{count}) {playlist[0]}')
+
+        downloaded = "Undownloaded"
+
+        if os.path.isdir(f"Folders\\{playlist[0]}"):
+            downloaded = "Downloaded"
+
+            if os.path.isfile(f"Folders\\{playlist[0]}\\{get_sync_file(playlist[1])}"):
+                downloaded += " and Syncable"
+
+        print(f'{count}) ' + Fore.BLUE + Style.BRIGHT + f'{playlist[0]} ' + Style.NORMAL + Fore.CYAN + f'[{downloaded}]')
 
 def playlist_loop():
     playlists = load_playlists();
@@ -257,6 +268,8 @@ def init():
 
     os.environ["SPOTDL_FFMPEG_PATH"] = ffmpeg_path
     os.environ["SPOTDL_FFPROBE_PATH"] = ffprobe_path  # sometimes needed
+
+    colorama.init(autoreset=True)
 
 def main():
     init()
