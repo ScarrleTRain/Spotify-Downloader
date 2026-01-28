@@ -203,6 +203,10 @@ def download(link, code):
 
     dir += get_playlist_name_from_url(link) + "\\"
 
+    # If they attempt to sync a folder not usually synced
+    if code == 0 and not os.path.isfile(f"Folders\\{get_playlist_name_from_url(link)}\\{get_sync_file(link)}"):
+        code = 1
+
     if code == 0:
         cmd = f'python -m spotdl sync "{get_sync_file(link)}"'
     elif code == 1:
@@ -212,22 +216,24 @@ def download(link, code):
     else:
         raise ValueError("Invalid code")
 
-    print(dir)
 
-    process = subprocess.Popen(
-        cmd,
-        shell=True,
-        cwd=dir,
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        text=True,
-        bufsize=1
-    )
+    # Emulate for now to avoid rate limiting
+    print(cmd) 
 
-    for line in process.stdout:
-        print(line, end="")  # live output
+    # process = subprocess.Popen(
+    #     cmd,
+    #     shell=True,
+    #     cwd=dir,
+    #     stdout=subprocess.PIPE,
+    #     stderr=subprocess.STDOUT,
+    #     text=True,
+    #     bufsize=1
+    # )
 
-    process.wait()
+    # for line in process.stdout:
+    #     print(line, end="")  # live output
+
+    # process.wait()
 
 def get_sync_file(link):
     sync_file = "playlist_" + get_playlist_id_from_url(link) + ".dat.spotdl"
@@ -281,8 +287,4 @@ def main():
 
 # THE BIG STUFF
 
-link, code = playlist_loop()
-
-print(get_playlist_name_from_url(link))
-
-# main()
+main()
