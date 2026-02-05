@@ -242,8 +242,9 @@ def get_sync_file(link):
 
 # Using Interactions
 
-def get_checked_input(options):
-    options += [("[B] Back", 'B'), ("[E] Exit", 'E')]
+def get_checked_input(options, custom=False):
+    if not custom:
+        options += [("[B] Back", 'B'), ("[E] Exit", 'E')]
 
     for option in options:
         print(option[0])
@@ -281,10 +282,11 @@ def init():
 def main():
     init()
 
-    (playlist, code) = playlist_loop()
-    download(playlist, code)
+    while (True):
+        (playlist, code) = playlist_loop()
+        download(playlist, code)
 
-    sys.exit(0)
+        get_checked_input([("[C] Continue", 'C'), ("[E] Exit", 'E')])
 
 # THE BIG STUFF
 
