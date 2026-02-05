@@ -216,24 +216,25 @@ def download(link, code):
     else:
         raise ValueError("Invalid code")
 
+    cmd += " --auth-token " + get_access_token()
 
     # Emulate for now to avoid rate limiting
-    print(cmd) 
+    # print(Fore.YELLOW + cmd) 
 
-    # process = subprocess.Popen(
-    #     cmd,
-    #     shell=True,
-    #     cwd=dir,
-    #     stdout=subprocess.PIPE,
-    #     stderr=subprocess.STDOUT,
-    #     text=True,
-    #     bufsize=1
-    # )
+    process = subprocess.Popen(
+        cmd,
+        shell=True,
+        cwd=dir,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        text=True,
+        bufsize=1
+    )
 
-    # for line in process.stdout:
-    #     print(line, end="")  # live output
+    for line in process.stdout:
+        print(line, end="")  # live output
 
-    # process.wait()
+    process.wait()
 
 def get_sync_file(link):
     sync_file = "playlist_" + get_playlist_id_from_url(link) + ".dat.spotdl"
